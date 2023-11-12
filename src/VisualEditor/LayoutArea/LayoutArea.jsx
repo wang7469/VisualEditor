@@ -4,27 +4,17 @@ import { Grid, Skeleton, Container, Card, Image} from '@mantine/core';
 
 
 export default function LayoutArea({droppedPictures}){
-   console.log("in LayoutFun" + droppedPictures.length);
- 
+    console.log( droppedPictures[0].picture);
     return(
+        <>
+        {/* <Card withBorder style={{ margin: '5px', height: '200px', marginLeftL: '0px'}}>
+                
 
-        <Droppable droppableId='destination' type = "group">
+        <Droppable droppableId='square-1' type = "group">
             {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef}>
-                    {/* {[1, 2, 3, 4].map((index) => (
-                        <Draggable key={index} draggableId={`layout-${index}`} index={index - 1}>
-                        {(provided) => (
-                            <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            >
-                            <LayoutAreaDroppable droppedPictures={droppedPictures} />
-                            </div>
-                        )}
-                        </Draggable>
-                    ))} */}
-                    {droppedPictures.map((droppedPicture, index) => (
+                  
+                   {droppedPictures.map((droppedPicture, index) => (
                         <Draggable draggableId={droppedPicture.id} key={droppedPicture.id} index={index}>
                         {(provided) => (
                             <div 
@@ -38,33 +28,45 @@ export default function LayoutArea({droppedPictures}){
                             </div>
                         )}
                     </Draggable>
-                        ))}
-
-                    
+                        ))}                   
                 </div>
             )}
         </Droppable>
+       </Card> */}
+       
+      
+          {droppedPictures.map((square) => (
+            <Card withBorder style={{ margin: '5px', height: '200px', marginLeftL: '0px'}}>
+            <Droppable droppableId={square.id} type="group">
+              {(boxProvided) => (
+                <div
+                  {...boxProvided.droppableProps}
+                  ref={boxProvided.innerRef}
+                >
+                  {square.picture && (
+                    <Draggable draggableId={square.picture.id} key={square.picture.id} index={0}>
+                      {(dragProvided) => (
+                        <div
+                          {...dragProvided.draggableProps}
+                          {...dragProvided.dragHandleProps}
+                          ref={dragProvided.innerRef}
+                        >
+                            <Card withBorder style={{ margin: '5px' }}>
+                            <img src={square.picture.picture} style={{ width: 'auto', height: '130px' }}/> 
+                            </Card>
+                        </div>
+                      )}
+                    </Draggable>
+                  )}
+                  {boxProvided.placeholder}
+                </div>
+              )}
+            </Droppable>
+            </Card>
+          ))}
+
+         
+        </>
         )
     
 }
-
-// function LayoutAreaDroppable({droppedPictures}){
-//     return (
-//         <div className="sub-card">
-//           {droppedPictures.map((droppedPicture, index) => (
-//             <div key={droppedPicture.id} className="dropped-picture">
-//               <img src={droppedPicture.url} alt={`Dropped Picture ${index + 1}`} />
-//             </div>
-//           ))}
-//         </div>
-//       );
-//     // <Card withBorder style={{ margin: '5px', height: '200px'}}>
-                
-//     // </Card>
-//     // <Card withBorder style={{ margin: '5px', height: '200px'}}> 
-//     // </Card>
-//     // <Card withBorder style={{ margin: '5px', height: '200px'}}> 
-//     // </Card>
-//     // <Card withBorder style={{ margin: '5px', height: '200px'}}> 
-//     // </Card>
-// }

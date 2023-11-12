@@ -1,8 +1,9 @@
-# Getting Started with Create React App
+# Demo
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Future Steps
+### While it is generally recommended to avoid the use of relative paths, I opted for their simplicity during the development of this project. My primary focus was on implementing and achieving the expected functionalities. For larger scope projects, configuring absolute paths is advisable
 
-## Available Scripts
+## Run project on your local machine
 
 In the project directory, you can run:
 
@@ -10,9 +11,6 @@ In the project directory, you can run:
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
 ### `npm test`
 
