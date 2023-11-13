@@ -1,18 +1,32 @@
 import React from 'react'
 import { Droppable, Draggable } from 'react-beautiful-dnd'
-import { Card, Image, Button } from '@mantine/core'
+import { Card, Button } from '@mantine/core'
+import { IconSquareRoundedPlus } from '@tabler/icons-react'
 
 export default function LayoutArea({ droppedPictures, onAddSquare }) {
-  const handleAddSquare = () => {
-    onAddSquare()
-  }
+  const imageSize = 700 / droppedPictures.length
+  const [hoveredIndex, setHoveredIndex] = React.useState(null)
 
   return (
     <>
-      {droppedPictures.map((square) => (
+      {droppedPictures.map((square, index) => (
         <Card
+          key={square.id}
           withBorder
-          style={{ margin: '5px', height: '200px', marginLeftL: '0px' }}
+          radius='sm'
+          style={{
+            marginTop: '5px',
+            height: `250px`,
+            padding: 0,
+            border: '2px dotted lightgrey',
+            background: index === hoveredIndex ? '#e6f7ff' : 'transparent',
+            boxShadow:
+              square.picture && index === hoveredIndex
+                ? '0 4px 8px rgba(0, 0, 0, 0.1)'
+                : 'none',
+          }}
+          onMouseEnter={() => setHoveredIndex(index)}
+          onMouseLeave={() => setHoveredIndex(null)}
         >
           <Droppable key={square.id} droppableId={square.id} type='group'>
             {(boxProvided) => (
@@ -21,7 +35,7 @@ export default function LayoutArea({ droppedPictures, onAddSquare }) {
                   <Draggable
                     draggableId={square.picture.id}
                     key={square.picture.id}
-                    index={0}
+                    index={index}
                   >
                     {(dragProvided) => (
                       <div
@@ -29,10 +43,10 @@ export default function LayoutArea({ droppedPictures, onAddSquare }) {
                         {...dragProvided.dragHandleProps}
                         ref={dragProvided.innerRef}
                       >
-                        <Card withBorder style={{ margin: '5px' }}>
+                        <Card radius='sm' style={{ margin: '5px', padding: 0 }}>
                           <img
                             src={square.picture.picture}
-                            style={{ width: 'auto', height: '130px' }}
+                            style={{ width: '100%', height: `${imageSize}px` }}
                           />
                         </Card>
                       </div>
@@ -47,12 +61,17 @@ export default function LayoutArea({ droppedPictures, onAddSquare }) {
       ))}
 
       <Button
-        variant='gradient'
-        gradient={{ deg: 133, from: 'blue', to: 'cyan' }}
-        size='xs'
-        radius='md'
-        mt='xl'
-        onClick={handleAddSquare}
+        variant='light'
+        size='sm'
+        radius='sm'
+        onClick={onAddSquare}
+        style={{ marginTop: '10px' }}
+        rightSection={
+          <IconSquareRoundedPlus
+            stroke={1.25}
+            style={{ width: '1.15rem', height: '1.25rem' }}
+          />
+        }
       >
         Add New Cell
       </Button>

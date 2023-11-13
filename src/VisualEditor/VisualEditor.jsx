@@ -4,6 +4,7 @@ import LayoutArea from './LayoutArea/LayoutArea'
 import { Grid, Container, Card } from '@mantine/core'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import PICTURES from './PicturesData'
+import bg from './bg.svg'
 
 export default function VisualEditor() {
   //array of object, each object contains a id and a picture, and picture has two fields: id and picture
@@ -104,65 +105,49 @@ export default function VisualEditor() {
         setDroppedPictures(updatedDroppedPictures)
       }
     }
-
-    // If dragging from source to newly added square cell
-    // if (source.droppableId === 'source' && destination.droppableId === `square-${droppedPictures.length}`) {
-    //     const [removed] = updatedDraggablePictures.splice(source.index, 1);
-    //     const newSquareIndex = droppedPictures.length - 1;
-
-    //     // Move the current photo to the newly added square cell
-    //     updatedDroppedPictures[newSquareIndex].picture = removed;
-
-    //     setDraggablePictures(updatedDraggablePictures);
-    //     setDroppedPictures(updatedDroppedPictures);
-    //   }
   }
 
   return (
-    <div
-      style={{
-        backgroundColor: '#11284b',
-        backgroundImage:
-          'linear-gradient(250deg, rgba(130, 201, 30, 0) 0%, #062343 70%)',
-      }}
-    >
-      <DragDropContext onDragEnd={handleDropEnd}>
-        <Container size='xl'>
-          <Grid>
-            <Grid.Col span={{ base: 12, xs: 12 }}>
-              <Card
-                withBorder
-                radius='lg'
-                padding='xl'
-                style={{ height: '100px', marginTop: '30px' }}
-              ></Card>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, xs: 6 }}>
-              <Card
-                withBorder
-                radius='lg'
-                padding='xl'
-                style={{ height: '900px', marginBottom: '40px' }}
-              >
-                <PalletArea draggablePictures={draggablePictures} />
-              </Card>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, xs: 6 }}>
-              <Card
-                withBorder
-                radius='lg'
-                padding='xl'
-                style={{ height: '900px' }}
-              >
-                <LayoutArea
-                  droppedPictures={droppedPictures}
-                  onAddSquare={handleAddSquare}
-                />
-              </Card>
-            </Grid.Col>
-          </Grid>
-        </Container>
-      </DragDropContext>
-    </div>
+    <DragDropContext onDragEnd={handleDropEnd}>
+      <Container size='xl'>
+        <Grid>
+          <Grid.Col span={{ base: 12, xs: 12 }}>
+            <Card
+              withBorder
+              radius='lg'
+              padding='xl'
+              style={{ height: '100px', marginTop: '30px' }}
+            ></Card>
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, xs: 6 }}>
+            <Card
+              withBorder
+              radius='lg'
+              padding='xl'
+              style={{
+                height: '900px',
+                marginBottom: '40px',
+                padding: '20px',
+              }}
+            >
+              <PalletArea draggablePictures={draggablePictures} />
+            </Card>
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, xs: 6 }}>
+            <Card
+              withBorder
+              radius='lg'
+              padding='xl'
+              style={{ height: '900px', padding: '20px' }}
+            >
+              <LayoutArea
+                droppedPictures={droppedPictures}
+                onAddSquare={handleAddSquare}
+              />
+            </Card>
+          </Grid.Col>
+        </Grid>
+      </Container>
+    </DragDropContext>
   )
 }
