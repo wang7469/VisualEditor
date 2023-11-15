@@ -2,21 +2,20 @@ import React from 'react'
 import PalletArea from './PalletArea/PalletArea'
 import LayoutArea from './LayoutArea/LayoutArea'
 import { Grid, Container, Card } from '@mantine/core'
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { DragDropContext } from 'react-beautiful-dnd'
 import PICTURES from './PicturesData'
 
 export default function VisualEditor() {
   //array of object, each object contains a id and a picture, and picture has two fields: id and picture
-  const initialDestinationSquares = 
-    Array.from({ length: 4 }, (_, index) => ({
-      id: `square-${index + 1}`,
-      picture: null,
-      isSplit: false,
-      isHorizontalSplit: false,
-      horizontalSplitCount: 0,
-      verticalSplitCount: 0,
-      widthPercent: 100,
-    }))
+  const initialDestinationSquares = Array.from({ length: 4 }, (_, index) => ({
+    id: `square-${index + 1}`,
+    picture: null,
+    isSplit: false,
+    isHorizontalSplit: false,
+    horizontalSplitCount: 0,
+    verticalSplitCount: 0,
+    widthPercent: 100,
+  }))
 
   const [verticalSquareCellCount, setVerticalSquareCellCount] =
     React.useState(4)
@@ -29,6 +28,11 @@ export default function VisualEditor() {
     const newSquare = {
       id: `square-${droppedPictures.length + 1}`,
       picture: null,
+      isSplit: false,
+      isHorizontalSplit: false,
+      horizontalSplitCount: 0,
+      verticalSplitCount: 0,
+      widthPercent: 100,
     }
     setVerticalSquareCellCount(verticalSquareCellCount + 1)
     setDroppedPictures([...droppedPictures, newSquare])
@@ -54,8 +58,8 @@ export default function VisualEditor() {
       widthPercent: 100,
     })
 
-    const newCell1 = createNewCell(isHorizontal ? "horizontal" : "vertical")
-    const newCell2 = createNewCell(isHorizontal ? "horizontal" : "vertical")
+    const newCell1 = createNewCell(isHorizontal ? 'horizontal' : 'vertical')
+    const newCell2 = createNewCell(isHorizontal ? 'horizontal' : 'vertical')
     // Insert the new cells at the same position as the original cell
     updatedPictures.splice(index, 0, newCell1, newCell2)
 
@@ -65,29 +69,34 @@ export default function VisualEditor() {
     )
 
     for (let i = startIndex + 1; i < updatedPictures.length; i++) {
-      const [prefix, number, ...rest] = updatedPictures[i].id.split('-');
-    const newNumber = parseInt(number, 10) + 1;
-    updatedPictures[i].id = `${prefix}-${newNumber}${rest.length > 0 ? `-${rest.join('-')}` : ''}`;
-
+      const [prefix, number, ...rest] = updatedPictures[i].id.split('-')
+      const newNumber = parseInt(number, 10) + 1
+      updatedPictures[i].id = `${prefix}-${newNumber}${
+        rest.length > 0 ? `-${rest.join('-')}` : ''
+      }`
     }
 
     //reset all width percentage to 100%
     for (let i = 0; i < updatedPictures.length; i++) {
-      updatedPictures[i].widthPercent = 100;
+      updatedPictures[i].widthPercent = 100
     }
 
     //mark splitted pictures with 50% width percent
     for (let i = 0; i < updatedPictures.length - 1; i++) {
-      const idLength = updatedPictures[i].id.split('-').length;
-      const nextIdLength = updatedPictures[i+1].id.split('-').length;
+      const idLength = updatedPictures[i].id.split('-').length
+      const nextIdLength = updatedPictures[i + 1].id.split('-').length
 
-      // Check if the current object and the next object have the same id length
-      if (idLength > 2 && (idLength === nextIdLength)) {
-        updatedPictures[i].widthPercent = 50;
-        updatedPictures[i + 1].widthPercent = 50;
+      if (
+        idLength > 2 &&
+        idLength === nextIdLength &&
+        updatedPictures[i].isHorizontalSplit
+      ) {
+        updatedPictures[i].widthPercent = 50
+        updatedPictures[i + 1].widthPercent = 50
       }
     }
 
+    console.log('split func call')
     console.log(updatedPictures)
     setDroppedPictures(updatedPictures)
   }
