@@ -4,8 +4,8 @@
 * While it is generally recommended to avoid the use of relative paths, I opted for their simplicity during the development of this project. My primary focus was on implementing and achieving the expected functionalities. For larger scope projects, configuring absolute paths is advisable
 
 ## References
-`tabler icons` - (https://tabler-icons.io/)
-`mantine ui` - (https://ui.mantine.dev/)
+*  `tabler icons` - (https://tabler-icons.io/)
+*  `mantine ui` - (https://ui.mantine.dev/)
 
 ## Run project on your local machine
 

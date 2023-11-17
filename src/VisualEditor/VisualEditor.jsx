@@ -4,6 +4,7 @@ import LayoutArea from './LayoutArea/LayoutArea'
 import { Grid, Container, Card } from '@mantine/core'
 import { DragDropContext } from 'react-beautiful-dnd'
 import PICTURES from './PicturesData'
+import ActionArea from './ActionArea/ActionArea'
 
 export default function VisualEditor() {
   //array of object, each object contains a id and a picture, and picture has two fields: id and picture
@@ -14,7 +15,8 @@ export default function VisualEditor() {
     isHorizontalSplit: false,
     horizontalSplitCount: 0,
     verticalSplitCount: 0,
-    widthPercent: 100,
+    widthPercentTaken: 0,
+    parentCell: null,
   }))
 
   const [verticalSquareCellCount, setVerticalSquareCellCount] =
@@ -23,6 +25,29 @@ export default function VisualEditor() {
   const [droppedPictures, setDroppedPictures] = React.useState(
     initialDestinationSquares
   )
+  const [savedVersions, setSavedVersions] = React.useState([])
+
+  const handleSave = (name) => {
+    const newVersion = {
+      id: savedVersions.length + 1,
+      versionName: name,
+      data: droppedPictures,
+    }
+    setSavedVersions([...savedVersions, newVersion])
+    alert('saved')
+    console.log(savedVersions)
+  }
+
+  const handleLoad = (name) => {
+    //assume there is no duplicate names
+    // savedVersions.forEach((version) =>{
+    //   if (version.versionName === name) {
+    //     setDroppedPictures(version.data)
+    //     console.log(droppedPictures)
+    //     alert("loaded")
+    //   }
+    // })
+  }
 
   const handleAddSquare = () => {
     const newSquare = {
@@ -32,7 +57,8 @@ export default function VisualEditor() {
       isHorizontalSplit: false,
       horizontalSplitCount: 0,
       verticalSplitCount: 0,
-      widthPercent: 100,
+      widthPercentTaken: 0,
+      parentCell: null,
     }
     setVerticalSquareCellCount(verticalSquareCellCount + 1)
     setDroppedPictures([...droppedPictures, newSquare])
@@ -43,19 +69,21 @@ export default function VisualEditor() {
     // Remove the original cell
     const droppedPictureInfo = updatedPictures[index]
     updatedPictures.splice(index, 1)
+    const horizontalSplitCount = isHorizontal
+      ? droppedPictureInfo.horizontalSplitCount + 1
+      : droppedPictureInfo.horizontalSplitCount
 
     const createNewCell = (suffix) => ({
       id: `${droppedPictureInfo.id}-${suffix}`,
       picture: droppedPictureInfo.picture,
       isSplit: true,
       isHorizontalSplit: isHorizontal,
-      horizontalSplitCount: isHorizontal
-        ? droppedPictureInfo.horizontalSplitCount + 1
-        : droppedPictureInfo.horizontalSplitCount,
+      horizontalSplitCount: horizontalSplitCount,
       verticalSplitCount: isHorizontal
         ? droppedPictureInfo.verticalSplitCount
         : droppedPictureInfo.verticalSplitCount + 1,
-      widthPercent: 100,
+      widthPercentTaken: 100 / Math.pow(2, horizontalSplitCount),
+      parentCell: droppedPictureInfo.id,
     })
 
     const newCell1 = createNewCell(isHorizontal ? 'horizontal' : 'vertical')
@@ -76,28 +104,26 @@ export default function VisualEditor() {
       }`
     }
 
-    //reset all width percentage to 100%
-    for (let i = 0; i < updatedPictures.length; i++) {
-      updatedPictures[i].widthPercent = 100
-    }
+    // //reset all width percentage to 100%
+    // for (let i = 0; i < updatedPictures.length; i++) {
+    //   updatedPictures[i].widthPercent = 100
+    // }
 
-    //mark splitted pictures with 50% width percent
-    for (let i = 0; i < updatedPictures.length - 1; i++) {
-      const idLength = updatedPictures[i].id.split('-').length
-      const nextIdLength = updatedPictures[i + 1].id.split('-').length
+    // //mark splitted pictures with 50% width percent
+    // for (let i = 0; i < updatedPictures.length - 1; i++) {
+    //   const idLength = updatedPictures[i].id.split('-').length
+    //   const nextIdLength = updatedPictures[i + 1].id.split('-').length
 
-      if (
-        idLength > 2 &&
-        idLength === nextIdLength &&
-        updatedPictures[i].isHorizontalSplit
-      ) {
-        updatedPictures[i].widthPercent = 50
-        updatedPictures[i + 1].widthPercent = 50
-      }
-    }
+    //   if (
+    //     idLength > 2 &&
+    //     idLength === nextIdLength &&
+    //     updatedPictures[i].isHorizontalSplit
+    //   ) {
+    //     updatedPictures[i].widthPercent = 50
+    //     updatedPictures[i + 1].widthPercent = 50
+    //   }
+    // }
 
-    console.log('split func call')
-    console.log(updatedPictures)
     setDroppedPictures(updatedPictures)
   }
 
@@ -195,7 +221,13 @@ export default function VisualEditor() {
               radius='lg'
               padding='xl'
               style={{ height: '100px', marginTop: '30px' }}
-            ></Card>
+            >
+              <ActionArea
+                onLoad={handleLoad}
+                onSave={handleSave}
+                savedVersions={savedVersions}
+              />
+            </Card>
           </Grid.Col>
           <Grid.Col span={{ base: 12, xs: 6 }}>
             <Card
