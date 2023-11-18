@@ -1,7 +1,7 @@
 import React from 'react'
 import PalletArea from './PalletArea/PalletArea'
 import LayoutArea from './LayoutArea/LayoutArea'
-import { Grid, Container, Card } from '@mantine/core'
+import { Grid, Container, Card, Text } from '@mantine/core'
 import { DragDropContext } from 'react-beautiful-dnd'
 import PICTURES from './PicturesData'
 import ActionArea from './ActionArea/ActionArea'
@@ -248,7 +248,7 @@ export default function VisualEditor() {
               withBorder
               radius='lg'
               padding='xl'
-              style={{ height: '900px', padding: '20px' }}
+              style={{ height: '900px', padding: '20px'}}
             >
               <LayoutArea
                 droppedPictures={droppedPictures}
@@ -257,6 +257,9 @@ export default function VisualEditor() {
                 handleSplitCell={handleSplitCell}
               />
             </Card>
+            {/* <Text fz="xs" tt="uppercase" fw={700} c="dimmed" style={{ marginTop: "5px", marginLeft: "20px", marginRight: "20px"}}>
+              Layout area scrolls to adjust for space created when splitting pictures
+            </Text> */}
           </Grid.Col>
         </Grid>
       </Container>

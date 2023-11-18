@@ -22,8 +22,8 @@ export default function LayoutAreaPicture({
       withBorder
       radius='sm'
       style={{
-        marginTop: '5px',
-        marginRight: '5px',
+        marginTop: '2px',
+        marginRight: '2px',
         height: `${imageSize / heightCut}px`,
         width: `${widthPercent}%`,
         padding: 0,
