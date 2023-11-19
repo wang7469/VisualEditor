@@ -1,5 +1,6 @@
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 import { Card, Button } from '@mantine/core'
+import { IconCut, IconScissors } from '@tabler/icons-react'
 
 export default function LayoutAreaPicture({
   currentPicture,
@@ -82,13 +83,17 @@ export default function LayoutAreaPicture({
             radius='sm'
             onClick={handleSplit(i, true)}
             style={{
+              width: '35px',
+              height: '35px',
               position: 'absolute',
-              bottom: '5px',
-              right: '5px',
-              marginBottom: '30px',
+              bottom: '2px',
+              right: '2px',
+              marginBottom: '33px',
+              color: 'white',
+              padding: '0px',
             }}
           >
-            {i}
+            <IconCut stroke={3} style={{ width: '15px', height: '15px' }} />
           </Button>
           <Button
             variant='light'
@@ -96,12 +101,19 @@ export default function LayoutAreaPicture({
             radius='sm'
             onClick={handleSplit(i, false)}
             style={{
+              width: '35px',
+              height: '35px',
               position: 'absolute',
-              bottom: '5px',
-              right: '5px',
+              bottom: '0px',
+              right: '2px',
+              color: 'white',
+              padding: '0px',
             }}
           >
-            {i}
+            <IconScissors
+              stroke={3}
+              style={{ width: '15px', height: '15px' }}
+            />
           </Button>
         </>
       )}

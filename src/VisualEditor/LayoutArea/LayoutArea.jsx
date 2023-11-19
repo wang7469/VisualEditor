@@ -1,6 +1,5 @@
 import React from 'react'
-import { Droppable, Draggable } from 'react-beautiful-dnd'
-import { Card, Button } from '@mantine/core'
+import { Button } from '@mantine/core'
 import { IconSquareRoundedPlus } from '@tabler/icons-react'
 import LayoutAreaPicture from './LayoutAreaPicture'
 
@@ -9,6 +8,7 @@ export default function LayoutArea({
   onAddSquare,
   verticalSquareCellCount,
   handleSplitCell,
+  isButtonDisabled,
 }) {
   console.log(droppedPictures)
 
@@ -21,93 +21,44 @@ export default function LayoutArea({
   }
 
   const isSubId = (firstId, secondId) => {
-    if(firstId === null || secondId === null || firstId === undefined || secondId === undefined){
-      console.log("firstId or secondId passed to isSubId function is undefined")
+    if (
+      firstId === null ||
+      secondId === null ||
+      firstId === undefined ||
+      secondId === undefined
+    ) {
+      console.log('firstId or secondId passed to isSubId function is undefined')
       return false
     }
 
-    let firstIdParts = firstId.split('-');
-    let secondIdParts = secondId.split('-');
+    let firstIdParts = firstId.split('-')
+    let secondIdParts = secondId.split('-')
 
-    firstIdParts.splice(1, 1);
-    secondIdParts.splice(1, 1);
+    firstIdParts.splice(1, 1)
+    secondIdParts.splice(1, 1)
 
     if (secondIdParts.length !== firstIdParts.length - 1) {
-        return false;
+      return false
     }
 
     for (let i = 0; i < secondIdParts.length; i++) {
-        if (secondIdParts[i] !== firstIdParts[i]) {
-            return false;
-        }
+      if (secondIdParts[i] !== firstIdParts[i]) {
+        return false
+      }
     }
     return true
   }
-  // const findLongestIdPic = (objects) => {
-  //   let maxIdLength = 0
-  //   let indexOfLongestId = -1
 
-  //   objects.forEach((obj, index) => {
-  //     const idLength = obj.id.length
-  //     if (idLength > maxIdLength) {
-  //       maxIdLength = idLength
-  //       indexOfLongestId = index
-  //     }
-  //   })
-
-  //   return indexOfLongestId
-  // }
-
-  // const removePicById = (idToRemove, subArrayOfDroppedPictures) => {
-  //   const index = subArrayOfDroppedPictures.findIndex(
-  //     (element) => element.id === idToRemove
-  //   )
-  //   if (index !== -1) {
-  //     subArrayOfDroppedPictures.splice(index, 1)
-  //   }
-  // }
-
-  // const findPairs = (objects) => {
-  //   if (objects.length < 2) return [-1, -1]
-  //   for (let i = 0; i < objects.length - 1; i++) {
-  //     // Split IDs and remove the number part
-  //     const idParts1 = objects[i].id.split('-')
-  //     const idParts2 = objects[i + 1].id.split('-')
-
-  //     // Remove the number after 'square' for comparison
-  //     idParts1.splice(1, 1)
-  //     idParts2.splice(1, 1)
-
-  //     // Compare the rest of the ID
-  //     if (idParts1.join('-') === idParts2.join('-')) {
-  //       return [i, i + 1] // Return the indices of the first pair
-  //     }
-  //   }
-  //   return [-1, -1]
-  // }
-
-  // const findTwoLongestIds = (objs) => {
-  //   let maxIndex = 0,
-  //     secondMaxIndex = 1
-  //   if (objs[1].id.split('-').length > objs[0].id.split('-').length) {
-  //     maxIndex = 1
-  //     secondMaxIndex = 0
-  //   }
-
-  //   objs.forEach((obj, index) => {
-  //     if (obj.id.split('-').length > objs[maxIndex].id.split('-').length) {
-  //       secondMaxIndex = maxIndex
-  //       maxIndex = index
-  //     } else if (
-  //       obj.id.split('-').length > objs[secondMaxIndex].id.split('-').length &&
-  //       index !== maxIndex
-  //     ) {
-  //       secondMaxIndex = index
-  //     }
-  //   })
-
-  //   return [maxIndex, secondMaxIndex]
-  // }
+  const locateGroup = (group, id) => {
+    for (let i = 0; i < group.length; i++) {
+      if (parseInt(group[i].key.split('-')[1]) < parseInt(id.split('-')[1])) {
+        continue
+      } else {
+        return i
+      }
+    }
+    return 4
+  }
 
   const getLastWordOfId = (id) => {
     const parts = id.split('-')
@@ -121,6 +72,30 @@ export default function LayoutArea({
     } else {
       return ''
     }
+  }
+
+  const hasSameIdPattern = (id1, id2) => {
+    const parts1 = id1.split('-')
+    const parts2 = id2.split('-')
+
+    if (parts1.length !== parts2.length) {
+      return false
+    }
+
+    if (
+      parts1.length > 3 &&
+      parts1[parts1.length - 2] === 'vertical' &&
+      parts2.length > 3 &&
+      parts2[parts2.length - 2] === 'vertical'
+    ) {
+      const number1 = parseInt(parts1[1], 10)
+      const number2 = parseInt(parts2[1], 10)
+
+      if (number2 - number1 === 2) {
+        return true
+      }
+    }
+    return false
   }
 
   const [hoveredIndex, setHoveredIndex] = React.useState(null)
@@ -144,7 +119,7 @@ export default function LayoutArea({
       i++
     } else {
       const processedPicturesMap = {}
-      let pairIdsMap = new Set() 
+      let pairIdsMap = new Set()
 
       let groupStartingIndex = i
       let groupEndingIndex = i
@@ -169,7 +144,9 @@ export default function LayoutArea({
         groupStartingIndex,
         groupEndingIndex
       )
-      let processedPictures = new Array(subArrayOfDroppedPictures.length).fill(false);
+      let processedPictures = new Array(subArrayOfDroppedPictures.length).fill(
+        false
+      )
 
       //********************************************************************************************************* */
 
@@ -196,6 +173,9 @@ export default function LayoutArea({
           subArrayOfDroppedPictures[i].parentCell ===
             subArrayOfDroppedPictures[i + 1].parentCell
         ) {
+          processedPictures[i] = true
+          processedPictures[i + 1] = true
+
           pairIdsMap.add(picToWrap1.id)
           pairIdsMap.add(picToWrap2.id)
 
@@ -231,7 +211,14 @@ export default function LayoutArea({
                 width: '100%',
               }}
               data-width={
-                direction === 'vertical' ? picToWrap1.widthPercentTaken : picToWrap1.widthPercentTaken*2
+                direction === 'vertical'
+                  ? picToWrap1.widthPercentTaken
+                  : picToWrap1.widthPercentTaken * 2
+              }
+              data-height={
+                direction === 'vertical'
+                  ? picToWrap1.heightPercentTaken * 2
+                  : picToWrap1.heightPercentTaken
               }
             >
               {tempGroup}
@@ -239,6 +226,50 @@ export default function LayoutArea({
           )
           processedPicturesMap[picToWrap1.id] = splitPictureGroup
         }
+      }
+
+      let j = 0
+      const keys = Object.keys(processedPicturesMap)
+
+      while (j < keys.length - 1) {
+        const key1 = keys[j]
+        const key2 = keys[j + 1]
+
+        if (
+          hasSameIdPattern(key1, key2) &&
+          processedPicturesMap[key1] &&
+          processedPicturesMap[key2]
+        ) {
+          const width = processedPicturesMap[key1].props['data-width']
+          const height = processedPicturesMap[key1].props['data-height']
+
+          const combined = (
+            <div
+              key={key1}
+              style={{
+                display: 'flex',
+                flexDirection:
+                  getSecondLastWordOfId(key1) === 'vertical' ? 'column' : 'row',
+                width: '100%',
+              }}
+              data-width={
+                getSecondLastWordOfId(key1) === 'vertical' ? width : width * 2
+              }
+              data-height={
+                getSecondLastWordOfId(key1) === 'vertical' ? height * 2 : height
+              }
+            >
+              {processedPicturesMap[key1]}
+              {processedPicturesMap[key2]}
+            </div>
+          )
+
+          processedPicturesMap[key1] = combined
+          delete processedPicturesMap[key2]
+
+          keys.splice(i, 2)
+        }
+        j++
       }
 
       //********************************************start process the map here  */
@@ -256,7 +287,7 @@ export default function LayoutArea({
           )
           const pic = subArrayOfDroppedPictures[index]
 
-          var indexOfPic
+          let indexOfPic
           for (
             indexOfPic = 0;
             indexOfPic < subArrayOfDroppedPictures.length;
@@ -277,14 +308,14 @@ export default function LayoutArea({
           //        previous could ONLY BE A PICTURE as we are iterate from front to end
           else if (
             prevIndex >= 0 &&
-            isSubId(picId, subArrayOfDroppedPictures[prevIndex].id)
-            &&
-            !(pairIdsMap.has(subArrayOfDroppedPictures[prevIndex].id))
+            isSubId(picId, subArrayOfDroppedPictures[prevIndex].id) &&
+            !pairIdsMap.has(subArrayOfDroppedPictures[prevIndex].id) &&
+            !processedPictures[prevIndex]
           ) {
             console.log('case2 ' + picId)
-            const currentShortestLength =
-              subArrayOfDroppedPictures[prevIndex].id.split('-').length
+            subGroup = []
             const prevPic = subArrayOfDroppedPictures[prevIndex]
+            let lastPicture = prevPic
             const currentPic = findPicById(subArrayOfDroppedPictures, picId)
             totalWidth = currentPic.isHorizontalSplit
               ? currentPic.widthPercentTaken * 2
@@ -293,8 +324,6 @@ export default function LayoutArea({
             const picWidth = splitDirection === 'vertical' ? 100 : 50
             const heightCut = Math.pow(2, prevPic.verticalSplitCount)
             const squareCellIndex = parseInt(prevPic.id.split('-')[1]) - 1
-            const divDirection =
-              getSecondLastWordOfId(picId) === 'vertical' ? 'column' : 'row'
 
             const prevPicDiv = (
               <LayoutAreaPicture
@@ -307,14 +336,21 @@ export default function LayoutArea({
               />
             )
 
-            if(prevIndex-1 >= 0 && isSubId(subArrayOfDroppedPictures[prevIndex-1].id, subArrayOfDroppedPictures[prevIndex].id)){
-              if(!processedPictures[prevIndex]){
+            if (
+              prevIndex - 1 >= 0 &&
+              isSubId(
+                subArrayOfDroppedPictures[prevIndex - 1].id,
+                subArrayOfDroppedPictures[prevIndex].id
+              ) &&
+              !pairIdsMap.has(subArrayOfDroppedPictures[prevIndex - 1].id)
+            ) {
+              if (!processedPictures[prevIndex]) {
                 const updatedPrevPicDiv = (
                   <LayoutAreaPicture
                     currentPicture={prevPic}
                     verticalSquareCellCount={verticalSquareCellCount}
                     heightCut={heightCut}
-                    widthPercent="100"
+                    widthPercent='100'
                     index={squareCellIndex}
                     handleSplitCell={handleSplitCell}
                   />
@@ -322,14 +358,14 @@ export default function LayoutArea({
                 group.push(
                   <div
                     key={prevPic.id}
-                    style={{width: '100%',}}
-                    data-width={
-                      prevPic.widthPercentTaken
-                    }
+                    style={{ width: '100%' }}
+                    data-width={prevPic.widthPercentTaken}
+                    data-height={prevPic.heightPercentTaken}
                   >
                     {updatedPrevPicDiv}
                   </div>
                 )
+                processedPictures[prevIndex] = true
               }
               group.push(processedPicturesMap[picId])
               continue
@@ -347,17 +383,21 @@ export default function LayoutArea({
                       : '50%',
                 }}
                 data-width={currentDiv.props['data-width']}
+                data-height={currentDiv.props['data-height']}
               >
                 {currentDiv.props.children}
               </div>
             )
-            
+
             subGroup.push(
               <div
                 key={picId}
                 style={{
                   display: 'flex',
-                  flexDirection: {divDirection},
+                  flexDirection:
+                    getSecondLastWordOfId(picId) === 'vertical'
+                      ? 'column'
+                      : 'row',
                   width: `100%`,
                 }}
                 data-width={
@@ -365,41 +405,121 @@ export default function LayoutArea({
                     ? prevPic.widthPercentTaken
                     : prevPic.widthPercentTaken * 2
                 }
+                data-height={
+                  getSecondLastWordOfId(picId) === 'vertical'
+                    ? prevPic.heightPercentTaken * 2
+                    : prevPic.heightPercentTaken
+                }
               >
                 {prevPicDiv}
                 {updatedCurrentDiv}
               </div>
             )
+            console.log('combined with ' + prevPic.id)
 
             if (getSecondLastWordOfId(picId) === 'horizontal')
               totalWidth += prevPic.widthPercentTaken
+            processedPictures[prevIndex] = true
 
+            //start search around
             let prevPrevIndex = prevIndex
+            console.log(prevPrevIndex)
             let indexOfNext = nextIndex
             while (totalWidth < 100) {
-              prevPrevIndex -= 1
               if (
-                prevPrevIndex >= 0 &&
-                currentShortestLength -
-                  subArrayOfDroppedPictures[prevPrevIndex].id.split('-')
-                    .length ===
-                  1
+                prevPrevIndex - 1 >= 0 &&
+                isSubId(
+                  lastPicture.id,
+                  subArrayOfDroppedPictures[prevPrevIndex - 1].id
+                ) &&
+                !pairIdsMap.has(
+                  subArrayOfDroppedPictures[prevPrevIndex - 1].id
+                ) &&
+                !processedPictures[prevPrevIndex - 1]
               ) {
-                console.log('e')
+                prevPrevIndex--
+                processedPictures[prevPrevIndex] = true
+                const prevPrevPic = subArrayOfDroppedPictures[prevPrevIndex]
+                lastPicture = prevPrevPic
+                const splitDirection = getLastWordOfId(prevPrevPic.id)
+                const prevPicWidth = splitDirection === 'vertical' ? 100 : 50
+                const heightCut = Math.pow(2, prevPrevPic.verticalSplitCount)
+                const squareCellIndex =
+                  parseInt(prevPrevPic.id.split('-')[1]) - 1
+
+                const prevPrevPicDiv = (
+                  <LayoutAreaPicture
+                    currentPicture={prevPrevPic}
+                    verticalSquareCellCount={verticalSquareCellCount}
+                    heightCut={heightCut}
+                    widthPercent={prevPicWidth}
+                    index={squareCellIndex}
+                    handleSplitCell={handleSplitCell}
+                  />
+                )
+                const currentDiv = subGroup.pop()
+                const updatedCurrentDiv = (
+                  <div
+                    key={currentDiv.key}
+                    style={{
+                      ...currentDiv.props.style,
+                      width:
+                        getLastWordOfId(prevPrevPic.id) === 'vertical'
+                          ? '100%'
+                          : '50%',
+                    }}
+                    data-width={currentDiv.props['data-width']}
+                    data-height={currentDiv.props['data-height']}
+                  >
+                    {currentDiv.props.children}
+                  </div>
+                )
+
+                subGroup.push(
+                  <div
+                    key={prevPrevPic.id}
+                    style={{
+                      display: 'flex',
+                      flexDirection:
+                        (getLastWordOfId(prevPrevPic.id) === 'vertical') ===
+                        'vertical'
+                          ? 'column'
+                          : 'row',
+                      width: `100%`,
+                    }}
+                    data-width={
+                      getLastWordOfId(prevPrevPic.id) === 'vertical'
+                        ? prevPrevPic.widthPercentTaken
+                        : prevPrevPic.widthPercentTaken * 2
+                    }
+                    data-height={
+                      getLastWordOfId(prevPrevPic.id) === 'vertical'
+                        ? prevPrevPic.heightPercentTaken * 2
+                        : prevPrevPic.heightPercentTaken
+                    }
+                  >
+                    {prevPrevPicDiv}
+                    {updatedCurrentDiv}
+                  </div>
+                )
+                if (getLastWordOfId(prevPrevPic.id) === 'horizontal') {
+                  totalWidth += prevPrevPic.widthPercentTaken
+                }
+                console.log('in while looop combined with ' + prevPrevPic.id)
               } else if (
                 indexOfNext < subArrayOfDroppedPictures.length &&
-                currentShortestLength -
-                  subArrayOfDroppedPictures[indexOfNext].id.split('-')
-                    .length ===
-                  1
+                isSubId(
+                  lastPicture.id,
+                  subArrayOfDroppedPictures[indexOfNext].id
+                ) &&
+                !pairIdsMap.has(subArrayOfDroppedPictures[indexOfNext - 1].id)
               ) {
                 const nextPic = subArrayOfDroppedPictures[indexOfNext]
-
+                lastPicture = nextPic
                 const splitDirection = getLastWordOfId(nextPic.id)
                 const picWidth = splitDirection === 'vertical' ? 100 : 50
                 const heightCut = Math.pow(2, nextPic.verticalSplitCount)
                 const squareCellIndex = parseInt(nextPic.id.split('-')[1]) - 1
-                const outerDivWidth = 100
 
                 const nextPicDiv = (
                   <LayoutAreaPicture
@@ -423,146 +543,56 @@ export default function LayoutArea({
                         getSecondLastWordOfId(picId) === 'vertical'
                           ? 'column'
                           : 'row',
-                      width: `${outerDivWidth}%`,
+                      width: `100%`,
                     }}
                     data-width={
                       getSecondLastWordOfId(picId) === 'vertical'
                         ? nextPic.widthPercentTaken
                         : nextPic.widthPercentTaken * 2
                     }
+                    data-height={
+                      getSecondLastWordOfId(picId) === 'vertical'
+                        ? nextPic.heightPercentTaken * 2
+                        : nextPic.heightPercentTaken
+                    }
                   >
                     {currentDiv}
                     {nextPicDiv}
                   </div>
                 )
-                if (getLastWordOfId(nextPic.id) === 'horizontal')
+                if (getLastWordOfId(nextPic.id) === 'horizontal') {
                   totalWidth += nextPic.widthPercentTaken
+                }
                 indexOfNext++
-              }
-              // else if(indexOfNext < subArrayOfDroppedPictures.length && subArrayOfDroppedPictures[indexOfNext].id.split('-').length == currentShortestLength &&
-              // subArrayOfDroppedPictures[indexOfNext].id in processedPicturesMap)
-              //   {
-              //     console.log("not be here?" + totalWidth)
-              //       const nextDiv = processedPicturesMap[subArrayOfDroppedPictures[indexOfNext].id]
-              //       const currentDiv = group.pop()
-              //       group.push(
-              //         <div
-              //           key={subArrayOfDroppedPictures[indexOfNext].id}
-              //           style={{
-              //             display: 'flex',
-              //             flexDirection:
-              //               getSecondLastWordOfId(subArrayOfDroppedPictures[indexOfNext].id) === 'vertical'
-              //                 ? 'column'
-              //                 : 'row',
-              //             width: `100%`,
-              //           }}
-              //         >
-              //           {currentDiv}
-              //           {nextDiv}
-              //         </div>
-              //       )
-              //       indexOfNext += 2
-              // }
-              else {
+                processedPictures[indexOfNext] = true
+              } else {
                 break
               }
             }
-            if (totalWidth < 100 && group.length > 0) {
-              const prev = group.pop()
-              const subGroupDiv = subGroup.pop()
-              const updatedSubGroup = (
-                <div
-                  key={subGroupDiv.key}
-                  style={{
-                    ...subGroupDiv.props.style,
-                    width: '50%',
-                  }}
-                  data-width={subGroupDiv.props['data-width']}
-                >
-                  {subGroupDiv.props.children}
-                </div>
-              )
 
-              const updatedPrev = (
-                <div
-                  key={prev.key}
-                  style={{
-                    ...prev.props.style,
-                    width: '50%',
-                  }}
-                  data-width={prev.props['data-width']}
-                >
-                  {prev.props.children}
-                </div>
-              )
-
-              group.push(
-                <div
-                  key={`combined-${group.length}`}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    width: `100%`,
-                  }}
-                  data-width={prev.props['data-width'] * 2}
-                >
-                  {updatedPrev}
-                  {updatedSubGroup}
-                </div>
-              )
-              // }
-              subGroup = []
-            } else if (totalWidth == 100) {
-              group.push(subGroup[0])
-              subGroup = []
-              totalWidth = 0
-            } else {
-              group.push(subGroup[0])
-              subGroup = []
-              console.log(
-                'prev pic matches and search of prev and next pic ended' +
-                  prevPic.id
-              )
-            }
+            console.log(subGroup[0])
+            group.push(subGroup[0])
+            subGroup = []
+            totalWidth = 0
+            console.log(
+              'prev pic matches and search of prev and next pic ended' +
+                prevPic.id
+            )
           }
-          //case 3: next index is a div, need to wrap
-          // else if(nextIndex < subArrayOfDroppedPictures.length && (subArrayOfDroppedPictures[nextIndex].id.split('-').length <= picId.split('-').length) && subArrayOfDroppedPictures[nextIndex].id in processedPicturesMap){
-          //   console.log("case3 " + picId)
-          //   const currentDiv = processedPicturesMap[picId]
-          //   const nextDiv = processedPicturesMap[subArrayOfDroppedPictures[nextIndex].id]
-          //   processedPicturesMap[subArrayOfDroppedPictures[nextIndex].id] = null
-
-          //   group.push(
-          //     <div
-          //       key={picId}
-          //       style={{
-          //         display: 'flex',
-          //         flexDirection:
-          //           getSecondLastWordOfId(picId) === 'vertical'
-          //             ? 'column'
-          //             : 'row',
-          //         width: `100%`,
-          //       }}
-          //     >
-          //       {currentDiv}
-          //       {nextDiv}
-          //     </div>
-          //   )
-          // }
           //case 4: next index is a pic
           else if (
             nextIndex < subArrayOfDroppedPictures.length &&
-            isSubId(picId, subArrayOfDroppedPictures[nextIndex].id) 
-            &&
-            !(pairIdsMap.has(subArrayOfDroppedPictures[nextIndex].id))
+            isSubId(picId, subArrayOfDroppedPictures[nextIndex].id) &&
+            !pairIdsMap.has(subArrayOfDroppedPictures[nextIndex].id)
           ) {
             console.log('case4')
-            let subGroup = []
+            subGroup = []
             const currentPic = findPicById(subArrayOfDroppedPictures, picId)
             totalWidth = currentPic.isHorizontalSplit
               ? currentPic.widthPercentTaken * 2
               : currentPic.widthPercentTaken
             const nextPic = subArrayOfDroppedPictures[nextIndex]
+            let lastPic = nextPic
 
             const splitDirection = getLastWordOfId(nextPic.id)
             const picWidth = splitDirection === 'vertical' ? 100 : 50
@@ -580,33 +610,38 @@ export default function LayoutArea({
               />
             )
 
-            if(nextIndex+1 < subArrayOfDroppedPictures.length && 
-              isSubId(subArrayOfDroppedPictures[nextIndex+1].id,nextPic.id)){
-                const updatedPrevPicDiv = (
-                  <LayoutAreaPicture
+            if (
+              nextIndex + 1 < subArrayOfDroppedPictures.length &&
+              isSubId(
+                subArrayOfDroppedPictures[nextIndex + 1].id,
+                nextPic.id
+              ) &&
+              !pairIdsMap.has(subArrayOfDroppedPictures[nextIndex + 1].id)
+            ) {
+              const updatedPrevPicDiv = (
+                <LayoutAreaPicture
                   currentPicture={nextPic}
                   verticalSquareCellCount={verticalSquareCellCount}
                   heightCut={heightCut}
-                  widthPercent="100"
+                  widthPercent='100'
                   index={squareCellIndex}
                   handleSplitCell={handleSplitCell}
                 />
-                )
-                group.push(processedPicturesMap[picId])
-                group.push(
-                  <div
-                    key={nextPic.id}
-                    style={{width: '100%'}}
-                    data-width={
-                      nextPic.widthPercentTaken
-                    }
-                  >
-                    {updatedPrevPicDiv}
-                  </div>
-                )
+              )
+              group.push(processedPicturesMap[picId])
+              group.push(
+                <div
+                  key={nextPic.id}
+                  style={{ width: '100%' }}
+                  data-width={nextPic.widthPercentTaken}
+                  data-height={nextPic.heightPercentTaken}
+                >
+                  {updatedPrevPicDiv}
+                </div>
+              )
 
-                processedPictures[nextIndex] = true
-                continue
+              processedPictures[nextIndex] = true
+              continue
             }
 
             const currentDiv = processedPicturesMap[picId]
@@ -621,12 +656,13 @@ export default function LayoutArea({
                       : '50%',
                 }}
                 data-width={currentDiv.props['data-width']}
+                data-height={currentDiv.props['data-height']}
               >
                 {currentDiv.props.children}
               </div>
             )
 
-            group.push(
+            subGroup.push(
               <div
                 key={picId}
                 style={{
@@ -642,63 +678,234 @@ export default function LayoutArea({
                     ? nextPic.widthPercentTaken
                     : nextPic.widthPercentTaken * 2
                 }
+                data-height={
+                  getSecondLastWordOfId(picId) === 'vertical'
+                    ? nextPic.heightPercentTaken * 2
+                    : nextPic.heightPercentTaken
+                }
               >
                 {updatedCurrentDiv}
                 {nextPicDiv}
               </div>
             )
+
             processedPictures[nextIndex] = true
+            if (getSecondLastWordOfId(picId) === 'horizontal')
+              totalWidth += nextPic.widthPercentTaken
+
+            let prevPrevIndex = prevIndex
+            let indexOfNext = nextIndex
+            let previousProcessedId = nextPic.id
+
+            while (totalWidth < 100) {
+              if (
+                indexOfNext + 1 < subArrayOfDroppedPictures.length &&
+                isSubId(
+                  previousProcessedId,
+                  subArrayOfDroppedPictures[indexOfNext + 1].id
+                )
+              ) {
+                indexOfNext++
+                const nextNextPic = subArrayOfDroppedPictures[indexOfNext]
+                lastPic = nextNextPic
+                const splitDirection = getLastWordOfId(nextNextPic.id)
+                const picWidth = splitDirection === 'vertical' ? 100 : 50
+                const heightCut = Math.pow(2, nextNextPic.verticalSplitCount)
+                const squareCellIndex =
+                  parseInt(nextNextPic.id.split('-')[1]) - 1
+
+                const nextNextPicDiv = (
+                  <LayoutAreaPicture
+                    currentPicture={nextNextPic}
+                    verticalSquareCellCount={verticalSquareCellCount}
+                    heightCut={heightCut}
+                    widthPercent={picWidth}
+                    index={squareCellIndex}
+                    handleSplitCell={handleSplitCell}
+                  />
+                )
+                const currentDiv = subGroup.pop()
+                const updatedCurrentDiv = (
+                  <div
+                    key={currentDiv.key}
+                    style={{
+                      ...currentDiv.props.style,
+                      width:
+                        getLastWordOfId(nextNextPic.id) === 'vertical'
+                          ? '100%'
+                          : '50%',
+                    }}
+                    data-width={
+                      getLastWordOfId(nextNextPic.id) === 'vertical'
+                        ? nextNextPic.widthPercentTaken
+                        : nextNextPic.widthPercentTaken * 2
+                    }
+                    data-height={
+                      getLastWordOfId(nextNextPic.id) === 'vertical'
+                        ? nextNextPic.heightPercentTaken * 2
+                        : nextNextPic.heightPercentTaken
+                    }
+                  >
+                    {currentDiv.props.children}
+                  </div>
+                )
+
+                subGroup.push(
+                  <div
+                    key={nextNextPic.id}
+                    style={{
+                      display: 'flex',
+                      flexDirection:
+                        getLastWordOfId(nextNextPic.id) === 'vertical'
+                          ? 'column'
+                          : 'row',
+                      width: `100%`,
+                    }}
+                    data-width={
+                      getLastWordOfId(nextNextPic.id) === 'vertical'
+                        ? nextNextPic.widthPercentTaken
+                        : nextNextPic.widthPercentTaken * 2
+                    }
+                    data-height={
+                      getLastWordOfId(nextNextPic.id) === 'vertical'
+                        ? nextNextPic.heightPercentTaken * 2
+                        : nextNextPic.heightPercentTaken
+                    }
+                  >
+                    {updatedCurrentDiv}
+                    {nextNextPicDiv}
+                  </div>
+                )
+                if (getLastWordOfId(nextNextPic.id) === 'horizontal') {
+                  totalWidth += nextNextPic.widthPercentTaken
+                }
+                previousProcessedId = nextNextPic.id
+                processedPictures[indexOfNext] = true
+              } else if (
+                prevPrevIndex >= 0 &&
+                isSubId(
+                  lastPic.id,
+                  subArrayOfDroppedPictures[prevPrevIndex].id
+                ) &&
+                !pairIdsMap.has(subArrayOfDroppedPictures[prevPrevIndex].id)
+              ) {
+                console.log(prevPrevIndex)
+                processedPictures[prevPrevIndex] = true
+                const prevPrevPic = subArrayOfDroppedPictures[prevPrevIndex]
+                lastPic = prevPrevPic
+                const splitDirection = getLastWordOfId(prevPrevPic.id)
+                const prevPicWidth = splitDirection === 'vertical' ? 100 : 50
+                const heightCut = Math.pow(2, prevPrevPic.verticalSplitCount)
+                const squareCellIndex =
+                  parseInt(prevPrevPic.id.split('-')[1]) - 1
+
+                const prevPrevPicDiv = (
+                  <LayoutAreaPicture
+                    currentPicture={prevPrevPic}
+                    verticalSquareCellCount={verticalSquareCellCount}
+                    heightCut={heightCut}
+                    widthPercent={prevPicWidth}
+                    index={squareCellIndex}
+                    handleSplitCell={handleSplitCell}
+                  />
+                )
+                const currentDiv = subGroup.pop()
+                const updatedCurrentDiv = (
+                  <div
+                    key={currentDiv.key}
+                    style={{
+                      ...currentDiv.props.style,
+                      width:
+                        getLastWordOfId(prevPrevPic.id) === 'vertical'
+                          ? '100%'
+                          : '50%',
+                    }}
+                    data-width={currentDiv.props['data-width']}
+                    data-height={currentDiv.props['data-height']}
+                  >
+                    {currentDiv.props.children}
+                  </div>
+                )
+                subGroup.push(
+                  <div
+                    key={prevPrevPic.id}
+                    style={{
+                      display: 'flex',
+                      flexDirection:
+                        (getLastWordOfId(prevPrevPic.id) === 'vertical') ===
+                        'vertical'
+                          ? 'column'
+                          : 'row',
+                      width: `100%`,
+                    }}
+                    data-width={
+                      getLastWordOfId(prevPrevPic.id) === 'vertical'
+                        ? prevPrevPic.widthPercentTaken
+                        : prevPrevPic.widthPercentTaken * 2
+                    }
+                    data-height={
+                      getLastWordOfId(prevPrevPic.id) === 'vertical'
+                        ? prevPrevPic.heightPercentTaken * 2
+                        : prevPrevPic.heightPercentTaken
+                    }
+                  >
+                    {prevPrevPicDiv}
+                    {updatedCurrentDiv}
+                  </div>
+                )
+                if (getLastWordOfId(prevPrevPic.id) === 'horizontal') {
+                  totalWidth += prevPrevPic.widthPercentTaken
+                }
+
+                console.log('combined with ' + prevPrevPic.id)
+                console.log(totalWidth)
+                prevPrevIndex--
+              } else {
+                break
+              }
+            }
+            group.push(subGroup[0])
           } else {
             //case 5: div and div combination
             console.log('case 5 ' + picId)
             group.push(processedPicturesMap[picId])
-
-
-            // let updatedUnfinishedDiv = null
-            // if(subGroup.length > 0){
-            //   const unfinishedDiv = subGroup.pop()
-            //   updatedUnfinishedDiv = (
-            //     <div
-            //       key={unfinishedDiv.key}
-            //       style={{
-            //         ...unfinishedDiv.props.style,
-            //         width: "50%"
-            //       }}
-            //       data-width={unfinishedDiv.props['data-width']}
-            //     >
-            //       {unfinishedDiv.props.children}
-            //     </div>
-            //   )
-            // }
-
-            // const updatedCurrentDiv = (
-            //   <div
-            //     key={processedPicturesMap[picId].key}
-            //     style={{
-            //       ...processedPicturesMap[picId].props.style,
-            //       width: "50%"
-            //     }}
-            //     data-width={processedPicturesMap.props['data-width']}
-            //   >
-            //     {processedPicturesMap[picId].props.children}
-            //   </div>
-            // )
-
-            // resultComponents.push(
-            //   <div
-            //       key={`divCombined-${picId}`}
-            //       style={{
-            //         display: 'flex',
-            //         flexDirection: "row",
-            //         width: "100%",
-            //       }}
-            //     >
-            //       {updatedUnfinishedDiv}
-            //       {updatedCurrentDiv}
-            //     </div>
-
-            // )
           }
+        }
+      }
+
+      console.log(group)
+      console.log(processedPictures)
+      for (let i = 0; i < processedPictures.length; i++) {
+        if (!processedPictures[i]) {
+          console.log(i)
+          const picture = subArrayOfDroppedPictures[i]
+          const picWidth = 100
+          const heightCut = Math.pow(2, picture.verticalSplitCount)
+          const squareCellIndex = parseInt(picture.id.split('-')[1]) - 1
+
+          const picDiv = (
+            <LayoutAreaPicture
+              currentPicture={picture}
+              verticalSquareCellCount={verticalSquareCellCount}
+              heightCut={heightCut}
+              widthPercent={picWidth}
+              index={squareCellIndex}
+              handleSplitCell={handleSplitCell}
+            />
+          )
+          console.log(i - 1)
+          group.splice(
+            locateGroup(group, picture.id),
+            0,
+            <div
+              key={picture.id}
+              style={{ width: `${picture.widthPercentTaken}%` }}
+              data-width={picture.widthPercentTaken}
+              data-height={picture.heightPercentTaken}
+            >
+              {picDiv}
+            </div>
+          )
         }
       }
 
@@ -710,109 +917,40 @@ export default function LayoutArea({
         if (currentRowWidth < 100) {
           finalGroup.push(group[i])
           console.log(group[i])
-          console.log(group[i].props['data-width'])
+          console.log(group[i].props['data-height'])
           currentRowWidth += group[i].props['data-width']
           console.log(finalGroup)
         } else {
-
-            let finalDiv = []
-            for(let i = 0; i < finalGroup.length; i++){
-              const currentDiv = finalGroup[i]
-              console.log(currentDiv)
-              finalDiv.push(
-                <div
-                  key={currentDiv.key}
-                  style={{
-                    ...currentDiv.props.style,
-                    width: `${currentDiv.props['data-width']}%`,
-                  }}
-                  data-width={currentDiv.props['data-width']}
-                >
-                  {currentDiv.props.children}
-                </div>
-              )
-            }
-            resultComponents.push(
+          let finalDiv = []
+          for (let i = 0; i < finalGroup.length; i++) {
+            const currentDiv = finalGroup[i]
+            console.log(currentDiv)
+            finalDiv.push(
               <div
-                key={`finalDiv-${resultComponents.length}`}
+                key={currentDiv.key}
                 style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  width: `100%`,
+                  ...currentDiv.props.style,
+                  width: `${currentDiv.props['data-width']}%`,
                 }}
-                data-width="100"
+                data-width={currentDiv.props['data-width']}
               >
-                {finalDiv}
+                {currentDiv.props.children}
               </div>
             )
-            // const updatedDiv1 = (
-            //   <div
-            //     key={finalGroup[0].key}
-            //     style={{
-            //       ...finalGroup[0].props.style,
-            //       width: '50%',
-            //     }}
-            //     data-width={finalGroup[0].props['data-width']}
-            //   >
-            //     {finalGroup[0].props.children}
-            //   </div>
-            // )
-
-            // const updatedDiv2 = (
-            //   <div
-            //     key={finalGroup[1].key}
-            //     style={{
-            //       ...finalGroup[1].props.style,
-            //       width: '50%',
-            //     }}
-            //     data-width={finalGroup[1].props['data-width']}
-            //   >
-            //     {finalGroup[1].props.children}
-            //   </div>
-            // )
-
-            // resultComponents.push(
-            //   <div
-            //     key={`finalDiv-${resultComponents.length}`}
-            //     style={{
-            //       display: 'flex',
-            //       flexDirection: 'row',
-            //       width: `100%`,
-            //     }}
-            //     data-width={currentRowWidth}
-            //   >
-            //     {updatedDiv1}
-            //     {updatedDiv2}
-            //   </div>
-            // )
-          // } else if (finalGroup.length == 1) {
-          //   const updatedDiv1 = (
-          //     <div
-          //       key={finalGroup[0].key}
-          //       style={{
-          //         ...finalGroup[0].props.style,
-          //         width: '100%',
-          //       }}
-          //       data-width={finalGroup[0].props['data-width']}
-          //     >
-          //       {finalGroup[0].props.children}
-          //     </div>
-          //   )
-
-          //   resultComponents.push(
-          //     <div
-          //       key={`finalDiv-${resultComponents.length}`}
-          //       style={{
-          //         display: 'flex',
-          //         flexDirection: 'row',
-          //         width: `100%`,
-          //       }}
-          //       data-width={currentRowWidth}
-          //     >
-          //       {updatedDiv1}
-          //     </div>
-          //   )
-          // }
+          }
+          resultComponents.push(
+            <div
+              key={`finalDiv-${resultComponents.length}`}
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                width: `100%`,
+              }}
+              data-width='100'
+            >
+              {finalDiv}
+            </div>
+          )
 
           finalGroup = []
           finalGroup.push(group[i])
@@ -822,9 +960,8 @@ export default function LayoutArea({
       }
 
       let finalDiv = []
-      for(let i = 0; i < finalGroup.length; i++){
+      for (let i = 0; i < finalGroup.length; i++) {
         const currentDiv = finalGroup[i]
-        console.log(`${currentDiv.props['data-width']}% `)
         finalDiv.push(
           <div
             key={currentDiv.key}
@@ -846,87 +983,16 @@ export default function LayoutArea({
             flexDirection: 'row',
             width: `100%`,
           }}
-          data-width="100"
+          data-width='100'
         >
           {finalDiv}
         </div>
       )
-
-      //check if finalGroup have item left
-      // if (finalGroup.length === 2) {
-      //   const updatedDiv1 = (
-      //     <div
-      //       key={finalGroup[0].key}
-      //       style={{
-      //         ...finalGroup[0].props.style,
-      //         width: '50%',
-      //       }}
-      //       data-width={finalGroup[0].props['data-width']}
-      //     >
-      //       {finalGroup[0].props.children}
-      //     </div>
-      //   )
-
-      //   const updatedDiv2 = (
-      //     <div
-      //       key={finalGroup[1].key}
-      //       style={{
-      //         ...finalGroup[1].props.style,
-      //         width: '50%',
-      //       }}
-      //       data-width={finalGroup[1].props['data-width']}
-      //     >
-      //       {finalGroup[1].props.children}
-      //     </div>
-      //   )
-
-      //   resultComponents.push(
-      //     <div
-      //       key={`finalDiv-${resultComponents.length}`}
-      //       style={{
-      //         display: 'flex',
-      //         flexDirection: 'row',
-      //         width: `100%`,
-      //       }}
-      //       data-width={currentRowWidth}
-      //     >
-      //       {updatedDiv1}
-      //       {updatedDiv2}
-      //     </div>
-      //   )
-      // } else if (finalGroup.length === 1) {
-      //   const updatedDiv1 = (
-      //     <div
-      //       key={finalGroup[0].key}
-      //       style={{
-      //         ...finalGroup[0].props.style,
-      //         width: '100%',
-      //       }}
-      //       data-width={finalGroup[0].props['data-width']}
-      //     >
-      //       {finalGroup[0].props.children}
-      //     </div>
-      //   )
-
-      //   resultComponents.push(
-      //     <div
-      //       key={`finalDiv-${resultComponents.length}`}
-      //       style={{
-      //         display: 'flex',
-      //         flexDirection: 'row',
-      //         width: `100%`,
-      //       }}
-      //       data-width={currentRowWidth}
-      //     >
-      //       {updatedDiv1}
-      //     </div>
-      //   )
-      // }
     }
   }
 
   return (
-    <div style={{maxHeight: "900px", height: "auto"}}>
+    <div style={{ maxHeight: '900px', height: 'auto' }}>
       {resultComponents.map((component, index) => (
         <React.Fragment key={index}>{component}</React.Fragment>
       ))}
@@ -935,6 +1001,7 @@ export default function LayoutArea({
         size='sm'
         radius='sm'
         onClick={onAddSquare}
+        disabled={isButtonDisabled}
         style={{ marginTop: '10px' }}
         rightSection={
           <IconSquareRoundedPlus

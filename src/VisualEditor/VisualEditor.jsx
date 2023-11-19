@@ -5,6 +5,7 @@ import { Grid, Container, Card, Text } from '@mantine/core'
 import { DragDropContext } from 'react-beautiful-dnd'
 import PICTURES from './PicturesData'
 import ActionArea from './ActionArea/ActionArea'
+import { IconCut, IconScissors } from '@tabler/icons-react'
 
 export default function VisualEditor() {
   //array of object, each object contains a id and a picture, and picture has two fields: id and picture
@@ -16,6 +17,7 @@ export default function VisualEditor() {
     horizontalSplitCount: 0,
     verticalSplitCount: 0,
     widthPercentTaken: 0,
+    heightPercentTaken: 0,
     parentCell: null,
   }))
 
@@ -26,6 +28,8 @@ export default function VisualEditor() {
     initialDestinationSquares
   )
   const [savedVersions, setSavedVersions] = React.useState([])
+  const [clickCount, setClickCount] = React.useState(0)
+  const [isButtonDisabled, setIsButtonDisabled] = React.useState(false)
 
   const handleSave = (name) => {
     const newVersion = {
@@ -50,6 +54,9 @@ export default function VisualEditor() {
   }
 
   const handleAddSquare = () => {
+    if (clickCount >= 10) {
+      return
+    }
     const newSquare = {
       id: `square-${droppedPictures.length + 1}`,
       picture: null,
@@ -58,10 +65,18 @@ export default function VisualEditor() {
       horizontalSplitCount: 0,
       verticalSplitCount: 0,
       widthPercentTaken: 0,
+      heightPercentTaken: 0,
       parentCell: null,
     }
     setVerticalSquareCellCount(verticalSquareCellCount + 1)
     setDroppedPictures([...droppedPictures, newSquare])
+
+    const newClickCount = clickCount + 1
+    setClickCount(newClickCount)
+    console.log(newClickCount)
+    if (newClickCount >= 10) {
+      setIsButtonDisabled(true)
+    }
   }
 
   const handleSplitCell = (index, isHorizontal) => {
@@ -72,6 +87,9 @@ export default function VisualEditor() {
     const horizontalSplitCount = isHorizontal
       ? droppedPictureInfo.horizontalSplitCount + 1
       : droppedPictureInfo.horizontalSplitCount
+    const verticalSplitCount = isHorizontal
+      ? droppedPictureInfo.verticalSplitCount
+      : droppedPictureInfo.verticalSplitCount + 1
 
     const createNewCell = (suffix) => ({
       id: `${droppedPictureInfo.id}-${suffix}`,
@@ -79,10 +97,9 @@ export default function VisualEditor() {
       isSplit: true,
       isHorizontalSplit: isHorizontal,
       horizontalSplitCount: horizontalSplitCount,
-      verticalSplitCount: isHorizontal
-        ? droppedPictureInfo.verticalSplitCount
-        : droppedPictureInfo.verticalSplitCount + 1,
+      verticalSplitCount: verticalSplitCount,
       widthPercentTaken: 100 / Math.pow(2, horizontalSplitCount),
+      heightPercentTaken: 100 / Math.pow(2, verticalSplitCount),
       parentCell: droppedPictureInfo.id,
     })
 
@@ -103,26 +120,6 @@ export default function VisualEditor() {
         rest.length > 0 ? `-${rest.join('-')}` : ''
       }`
     }
-
-    // //reset all width percentage to 100%
-    // for (let i = 0; i < updatedPictures.length; i++) {
-    //   updatedPictures[i].widthPercent = 100
-    // }
-
-    // //mark splitted pictures with 50% width percent
-    // for (let i = 0; i < updatedPictures.length - 1; i++) {
-    //   const idLength = updatedPictures[i].id.split('-').length
-    //   const nextIdLength = updatedPictures[i + 1].id.split('-').length
-
-    //   if (
-    //     idLength > 2 &&
-    //     idLength === nextIdLength &&
-    //     updatedPictures[i].isHorizontalSplit
-    //   ) {
-    //     updatedPictures[i].widthPercent = 50
-    //     updatedPictures[i + 1].widthPercent = 50
-    //   }
-    // }
 
     setDroppedPictures(updatedPictures)
   }
@@ -248,18 +245,49 @@ export default function VisualEditor() {
               withBorder
               radius='lg'
               padding='xl'
-              style={{ height: '900px', padding: '20px'}}
+              style={{ height: '900px', padding: '20px' }}
             >
               <LayoutArea
                 droppedPictures={droppedPictures}
                 onAddSquare={handleAddSquare}
                 verticalSquareCellCount={verticalSquareCellCount}
                 handleSplitCell={handleSplitCell}
+                isButtonDisabled={isButtonDisabled}
               />
             </Card>
-            {/* <Text fz="xs" tt="uppercase" fw={700} c="dimmed" style={{ marginTop: "5px", marginLeft: "20px", marginRight: "20px"}}>
-              Layout area scrolls to adjust for space created when splitting pictures
-            </Text> */}
+            {isButtonDisabled && (
+              <Text
+                fz='xs'
+                tt='uppercase'
+                fw={700}
+                c='dimmed'
+                style={{
+                  marginTop: '5px',
+                  marginLeft: '20px',
+                  marginRight: '20px',
+                }}
+              >
+                Button disabled: maximum layout space reached
+              </Text>
+            )}
+            {!isButtonDisabled && (
+               <Text
+               fz='xs'
+               tt='uppercase'
+               fw={700}
+               style={{
+                 marginTop: '5px',
+                 marginLeft: '20px',
+                 marginRight: '20px',
+                 color: "white",
+                 padding: "5px"
+               }}
+             >
+              <IconCut stroke={3} style={{ width: '20px', height: '20px' }} /> vertical split picture in half
+
+              <IconScissors stroke={3} style={{ width: '20px', height: '20px', marginLeft: "10px" }} /> horizontal split picture in half
+             </Text>
+            )}
           </Grid.Col>
         </Grid>
       </Container>

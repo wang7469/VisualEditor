@@ -1,7 +1,11 @@
 # Demo
 
-## Future Steps
+## Areas for Improvement
 * While it is generally recommended to avoid the use of relative paths, I opted for their simplicity during the development of this project. My primary focus was on implementing and achieving the expected functionalities. For larger scope projects, configuring absolute paths is advisable
+
+* Minimizing the use of let and var in favor of const is often advisable for maintaining code in real-world applications. This is because const enforces immutability, meaning once a value is assigned, it cannot be altered. This is especially important in applications with client-side interaction. In this project, I opted for using let primarily to expedite feature implementation and to prioritize immediate outcomes. While this approach enhanced development speed and focus on results, it may have implications on the long-term maintainability of the code
+
+* Avoiding the use of inline styles is also recommended for real-world applications considering factors like scalability and dynamic styling limitations
 
 ## References
 *  `tabler icons` - (https://tabler-icons.io/)
@@ -9,64 +13,14 @@
 
 ## Run project on your local machine
 
-In the project directory, you can run:
+First clone or download the project to your local machine. Navigate to the project directory, you can run:
+
+### `npm install`
+
+to install all the dependencies listed in package.json. After all dependencies are installed, you can start the project by running:
 
 ### `npm start`
 
-Runs the app in the development mode.\
+The above command runs the app in the development mode.
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
