@@ -25,10 +25,6 @@ export default function ActionArea({ onLoad, onSave, savedVersions }) {
     setSelectedItem(item)
   }
 
-  const handleLoadClick = (name) => {
-    onLoad(name)
-  }
-
   const handleSaveClick = () => {
     const name = prompt('Please enter a name for saved layout:')
     if (name) {
@@ -102,7 +98,7 @@ export default function ActionArea({ onLoad, onSave, savedVersions }) {
             rightSection={<IconLoader3 stroke={1.5} />}
             radius='sm'
             size='md'
-            // onClick={handleLoadClick(selectedItem)}
+            onClick={() => onLoad(selectedItem)}
           >
             Load Selected Version
           </Button>
@@ -113,12 +109,6 @@ export default function ActionArea({ onLoad, onSave, savedVersions }) {
           rightSection={<IconDownload stroke={1.5} />}
           radius='sm'
           size='md'
-          styles={
-            {
-              // root: { paddingRight: "14rem", height: "48rem" },
-              // section: { marginLeft: "22rem" },
-            }
-          }
           onClick={handleSaveClick}
         >
           Save Current Layout

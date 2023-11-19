@@ -37,20 +37,24 @@ export default function VisualEditor() {
       versionName: name,
       data: droppedPictures,
     }
+
     setSavedVersions([...savedVersions, newVersion])
-    alert('saved')
-    console.log(savedVersions)
+    alert(
+      'Your current layout has been successfully saved, and the layout area will now reset.'
+    )
+    setDroppedPictures(initialDestinationSquares)
   }
 
   const handleLoad = (name) => {
     //assume there is no duplicate names
-    // savedVersions.forEach((version) =>{
-    //   if (version.versionName === name) {
-    //     setDroppedPictures(version.data)
-    //     console.log(droppedPictures)
-    //     alert("loaded")
-    //   }
-    // })
+    savedVersions.forEach((version) => {
+      if (version.versionName === name) {
+        setDroppedPictures(version.data)
+        console.log(version.data)
+        console.log(droppedPictures)
+        alert('loaded')
+      }
+    })
   }
 
   const handleAddSquare = () => {
@@ -125,10 +129,9 @@ export default function VisualEditor() {
   }
 
   const handleDropEnd = (results) => {
-    const { source, destination, type } = results
+    const { source, destination } = results
 
     if (!destination || !source) return
-    // if(destination.droppableId === source.droppableId && source.index === destination.index) return;
 
     const updatedDraggablePictures = [...draggablePictures]
     const updatedDroppedPictures = [...droppedPictures]
@@ -154,7 +157,6 @@ export default function VisualEditor() {
 
       setDraggablePictures(updatedDraggablePictures)
       setDroppedPictures(updatedDroppedPictures)
-      // console.log(droppedPictures)
     }
 
     // If dragging within the destination squares
@@ -271,22 +273,26 @@ export default function VisualEditor() {
               </Text>
             )}
             {!isButtonDisabled && (
-               <Text
-               fz='xs'
-               tt='uppercase'
-               fw={700}
-               style={{
-                 marginTop: '5px',
-                 marginLeft: '20px',
-                 marginRight: '20px',
-                 color: "white",
-                 padding: "5px"
-               }}
-             >
-              <IconCut stroke={3} style={{ width: '20px', height: '20px' }} /> vertical split picture in half
-
-              <IconScissors stroke={3} style={{ width: '20px', height: '20px', marginLeft: "10px" }} /> horizontal split picture in half
-             </Text>
+              <Text
+                fz='xs'
+                tt='uppercase'
+                fw={700}
+                style={{
+                  marginTop: '5px',
+                  marginLeft: '20px',
+                  marginRight: '20px',
+                  color: 'white',
+                  padding: '5px',
+                }}
+              >
+                <IconCut stroke={3} style={{ width: '20px', height: '20px' }} />{' '}
+                vertical split picture in half
+                <IconScissors
+                  stroke={3}
+                  style={{ width: '20px', height: '20px', marginLeft: '10px' }}
+                />{' '}
+                horizontal split picture in half
+              </Text>
             )}
           </Grid.Col>
         </Grid>
