@@ -21,6 +21,8 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 * Avoiding the use of inline styles is also recommended for real-world applications considering factors like scalability and dynamic styling limitations
 
+* Adding unit tests is a key area for future improvement due to their role in early bug detection. While time constraints limited their implementation in this project, they are essential for the robustness of real-world applications.
+
 ## Dependencies
 *  `tabler icons` - (https://tabler-icons.io/) 
 *  `mantine ui` - (https://ui.mantine.dev/) UI library

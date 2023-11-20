@@ -29,14 +29,7 @@ export default function LayoutAreaPicture({
         width: `${widthPercent}%`,
         padding: 0,
         border: '2px dotted lightgrey',
-        // background: i === hoveredIndex ? '#e6f7ff' : 'transparent',
-        // boxShadow:
-        //   currentPicture.picture && i === hoveredIndex
-        //     ? '0 4px 8px rgba(0, 0, 0, 0.1)'
-        //     : 'none',
       }}
-      // onMouseEnter={() => setHoveredIndex(i)}
-      // onMouseLeave={() => setHoveredIndex(null)}
     >
       <Droppable
         key={currentPicture.id}

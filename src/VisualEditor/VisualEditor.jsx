@@ -8,7 +8,6 @@ import ActionArea from './ActionArea/ActionArea'
 import { IconCut, IconScissors } from '@tabler/icons-react'
 
 export default function VisualEditor() {
-  //array of object, each object contains a id and a picture, and picture has two fields: id and picture
   const initialDestinationSquares = Array.from({ length: 4 }, (_, index) => ({
     id: `square-${index + 1}`,
     picture: null,
@@ -50,9 +49,9 @@ export default function VisualEditor() {
     savedVersions.forEach((version) => {
       if (version.versionName === name) {
         setDroppedPictures(version.data)
-        console.log(version.data)
-        console.log(droppedPictures)
-        alert('loaded')
+        alert(
+          'The selected version has been loaded. Click the OK button to view it.'
+        )
       }
     })
   }
@@ -77,7 +76,6 @@ export default function VisualEditor() {
 
     const newClickCount = clickCount + 1
     setClickCount(newClickCount)
-    console.log(newClickCount)
     if (newClickCount >= 10) {
       setIsButtonDisabled(true)
     }
@@ -85,7 +83,6 @@ export default function VisualEditor() {
 
   const handleSplitCell = (index, isHorizontal) => {
     const updatedPictures = [...droppedPictures]
-    // Remove the original cell
     const droppedPictureInfo = updatedPictures[index]
     updatedPictures.splice(index, 1)
     const horizontalSplitCount = isHorizontal
@@ -109,10 +106,8 @@ export default function VisualEditor() {
 
     const newCell1 = createNewCell(isHorizontal ? 'horizontal' : 'vertical')
     const newCell2 = createNewCell(isHorizontal ? 'horizontal' : 'vertical')
-    // Insert the new cells at the same position as the original cell
     updatedPictures.splice(index, 0, newCell1, newCell2)
 
-    // Update id for newCell2 and subsequent cells
     const startIndex = updatedPictures.findIndex(
       (cell) => cell.id === newCell2.id
     )
@@ -130,83 +125,142 @@ export default function VisualEditor() {
 
   const handleDropEnd = (results) => {
     const { source, destination } = results
-
+    console.log(source)
+    console.log(destination)
     if (!destination || !source) return
 
     const updatedDraggablePictures = [...draggablePictures]
     const updatedDroppedPictures = [...droppedPictures]
 
-    // If dragging from source to destination
     if (
       source.droppableId === 'source' &&
       destination.droppableId.startsWith('square')
     ) {
-      console.log('dragging from source to destination')
-      const [removed] = updatedDraggablePictures.splice(source.index, 1)
-      const destinationSquareIndex =
-        parseInt(destination.droppableId.split('-')[1], 10) - 1
-
-      // Move the current photo in the destination square back to the source
-      if (updatedDroppedPictures[destinationSquareIndex].picture) {
-        updatedDraggablePictures.push(
-          updatedDroppedPictures[destinationSquareIndex].picture
-        )
-      }
-
-      updatedDroppedPictures[destinationSquareIndex].picture = removed
-
-      setDraggablePictures(updatedDraggablePictures)
-      setDroppedPictures(updatedDroppedPictures)
-    }
-
-    // If dragging within the destination squares
-    if (
+      handleDragFromSourceToDestination(
+        source,
+        destination,
+        updatedDraggablePictures,
+        updatedDroppedPictures
+      )
+    } else if (
       source.droppableId.startsWith('square') &&
       destination.droppableId.startsWith('square')
     ) {
-      console.log('dragging within destination')
-      const sourceSquareIndex =
-        parseInt(source.droppableId.split('-')[1], 10) - 1
-      const destinationSquareIndex =
-        parseInt(destination.droppableId.split('-')[1], 10) - 1
-
-      // Move the current photo in the destination square back to the source
-      if (updatedDroppedPictures[destinationSquareIndex].picture) {
-        updatedDraggablePictures.push(
-          updatedDroppedPictures[destinationSquareIndex].picture
-        )
-      }
-
-      // Swap the photos between source and destination squares
-      const temp = updatedDroppedPictures[sourceSquareIndex].picture
-      updatedDroppedPictures[sourceSquareIndex].picture =
-        updatedDroppedPictures[destinationSquareIndex].picture
-      updatedDroppedPictures[destinationSquareIndex].picture = temp
-
-      // setDraggablePictures(updatedDraggablePictures);
-      setDroppedPictures(updatedDroppedPictures)
-    }
-
-    // If dragging from destination back to source
-    if (
+      handleDragWithinDestination(
+        source,
+        destination,
+        updatedDraggablePictures,
+        updatedDroppedPictures
+      )
+    } else if (
       source.droppableId.startsWith('square') &&
       destination.droppableId === 'source'
     ) {
-      console.log('dragging from destination back to source')
-      const sourceIndex = parseInt(source.droppableId.split('-')[1], 10) - 1
+      handleDragFromDestinationToSource(
+        source,
+        updatedDraggablePictures,
+        updatedDroppedPictures
+      )
+    }
+  }
 
-      // Check if the square has a picture before attempting to remove it
-      const [removed] = updatedDroppedPictures[sourceIndex]?.picture
-        ? [updatedDroppedPictures[sourceIndex].picture]
-        : []
+  const handleDragFromSourceToDestination = (
+    source,
+    destination,
+    updatedDraggablePictures,
+    updatedDroppedPictures
+  ) => {
+    console.log('dragging from source to destination')
+    const [removed] = updatedDraggablePictures.splice(source.index, 1)
+    const destinationSquareIndex =
+      parseInt(destination.droppableId.split('-')[1], 10) - 1
+    movePhotoToDestinationSquare(
+      destinationSquareIndex,
+      removed,
+      updatedDraggablePictures,
+      updatedDroppedPictures
+    )
+  }
 
-      if (removed) {
-        updatedDraggablePictures.push(removed)
-        updatedDroppedPictures[sourceIndex].picture = null
+  const handleDragWithinDestination = (
+    source,
+    destination,
+    updatedDraggablePictures,
+    updatedDroppedPictures
+  ) => {
+    console.log('dragging within destination')
+    const sourceSquareIndex = parseInt(source.droppableId.split('-')[1], 10) - 1
+    const destinationSquareIndex =
+      parseInt(destination.droppableId.split('-')[1], 10) - 1
+    swapPhotosBetweenSquares(
+      sourceSquareIndex,
+      destinationSquareIndex,
+      updatedDroppedPictures,
+      updatedDraggablePictures
+    )
+  }
 
-        setDraggablePictures(updatedDraggablePictures)
-        setDroppedPictures(updatedDroppedPictures)
-      }
+  const handleDragFromDestinationToSource = (
+    source,
+    updatedDraggablePictures,
+    updatedDroppedPictures
+  ) => {
+    console.log('dragging from destination back to source')
+    const sourceIndex = parseInt(source.droppableId.split('-')[1], 10) - 1
+    removePhotoFromSourceSquare(
+      sourceIndex,
+      updatedDraggablePictures,
+      updatedDroppedPictures
+    )
+  }
+
+  const movePhotoToDestinationSquare = (
+    destinationSquareIndex,
+    photo,
+    updatedDraggablePictures,
+    updatedDroppedPictures
+  ) => {
+    if (updatedDroppedPictures[destinationSquareIndex].picture) {
+      updatedDraggablePictures.push(
+        updatedDroppedPictures[destinationSquareIndex].picture
+      )
+    }
+    updatedDroppedPictures[destinationSquareIndex].picture = photo
+    setDraggablePictures(updatedDraggablePictures)
+    setDroppedPictures(updatedDroppedPictures)
+  }
+
+  const swapPhotosBetweenSquares = (
+    sourceSquareIndex,
+    destinationSquareIndex,
+    updatedDroppedPictures,
+    updatedDraggablePictures
+  ) => {
+    if (updatedDroppedPictures[destinationSquareIndex].picture) {
+      updatedDraggablePictures.push(
+        updatedDroppedPictures[destinationSquareIndex].picture
+      )
+    }
+    const temp = updatedDroppedPictures[sourceSquareIndex].picture
+    updatedDroppedPictures[sourceSquareIndex].picture =
+      updatedDroppedPictures[destinationSquareIndex].picture
+    updatedDroppedPictures[destinationSquareIndex].picture = temp
+    setDroppedPictures(updatedDroppedPictures)
+  }
+
+  const removePhotoFromSourceSquare = (
+    sourceIndex,
+    updatedDraggablePictures,
+    updatedDroppedPictures
+  ) => {
+    const [removed] = updatedDroppedPictures[sourceIndex]?.picture
+      ? [updatedDroppedPictures[sourceIndex].picture]
+      : []
+    if (removed) {
+      updatedDraggablePictures.push(removed)
+      updatedDroppedPictures[sourceIndex].picture = null
+      setDraggablePictures(updatedDraggablePictures)
+      setDroppedPictures(updatedDroppedPictures)
     }
   }
 

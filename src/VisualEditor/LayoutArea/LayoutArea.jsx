@@ -148,8 +148,6 @@ export default function LayoutArea({
         false
       )
 
-      //********************************************************************************************************* */
-
       for (let i = 0; i < subArrayOfDroppedPictures.length - 1; i++) {
         const picToWrap1 = subArrayOfDroppedPictures[i]
         const picToWrap2 = subArrayOfDroppedPictures[i + 1]
@@ -171,7 +169,9 @@ export default function LayoutArea({
         if (
           idParts1.join('-') === idParts2.join('-') &&
           subArrayOfDroppedPictures[i].parentCell ===
-            subArrayOfDroppedPictures[i + 1].parentCell
+            subArrayOfDroppedPictures[i + 1].parentCell &&
+          !pairIdsMap.has(picToWrap1.id) &&
+          !pairIdsMap.has(picToWrap2.id)
         ) {
           processedPictures[i] = true
           processedPictures[i + 1] = true
@@ -228,6 +228,7 @@ export default function LayoutArea({
         }
       }
 
+      // *************************MAY BE REMOVED?????****************************** */
       let j = 0
       const keys = Object.keys(processedPicturesMap)
 
@@ -272,7 +273,6 @@ export default function LayoutArea({
         j++
       }
 
-      //********************************************start process the map here  */
       const group = []
       let subGroup = []
       for (let picId in processedPicturesMap) {
@@ -391,7 +391,7 @@ export default function LayoutArea({
 
             subGroup.push(
               <div
-                key={picId}
+                key={prevPic.id}
                 style={{
                   display: 'flex',
                   flexDirection:
@@ -415,7 +415,6 @@ export default function LayoutArea({
                 {updatedCurrentDiv}
               </div>
             )
-            console.log('combined with ' + prevPic.id)
 
             if (getSecondLastWordOfId(picId) === 'horizontal')
               totalWidth += prevPic.widthPercentTaken
@@ -423,7 +422,6 @@ export default function LayoutArea({
 
             //start search around
             let prevPrevIndex = prevIndex
-            console.log(prevPrevIndex)
             let indexOfNext = nextIndex
             while (totalWidth < 100) {
               if (
@@ -481,8 +479,7 @@ export default function LayoutArea({
                     style={{
                       display: 'flex',
                       flexDirection:
-                        (getLastWordOfId(prevPrevPic.id) === 'vertical') ===
-                        'vertical'
+                        getLastWordOfId(prevPrevPic.id) === 'vertical'
                           ? 'column'
                           : 'row',
                       width: `100%`,
@@ -505,7 +502,6 @@ export default function LayoutArea({
                 if (getLastWordOfId(prevPrevPic.id) === 'horizontal') {
                   totalWidth += prevPrevPic.widthPercentTaken
                 }
-                console.log('in while looop combined with ' + prevPrevPic.id)
               } else if (
                 indexOfNext < subArrayOfDroppedPictures.length &&
                 isSubId(
@@ -536,7 +532,7 @@ export default function LayoutArea({
 
                 subGroup.push(
                   <div
-                    key={picId}
+                    key={nextPic.id}
                     style={{
                       display: 'flex',
                       flexDirection:
@@ -570,14 +566,9 @@ export default function LayoutArea({
               }
             }
 
-            console.log(subGroup[0])
             group.push(subGroup[0])
             subGroup = []
             totalWidth = 0
-            console.log(
-              'prev pic matches and search of prev and next pic ended' +
-                prevPic.id
-            )
           }
           //case 4: next index is a pic
           else if (
@@ -612,11 +603,7 @@ export default function LayoutArea({
 
             if (
               nextIndex + 1 < subArrayOfDroppedPictures.length &&
-              isSubId(
-                subArrayOfDroppedPictures[nextIndex + 1].id,
-                nextPic.id
-              ) &&
-              !pairIdsMap.has(subArrayOfDroppedPictures[nextIndex + 1].id)
+              isSubId(subArrayOfDroppedPictures[nextIndex + 1].id, nextPic.id)
             ) {
               const updatedPrevPicDiv = (
                 <LayoutAreaPicture
@@ -664,7 +651,7 @@ export default function LayoutArea({
 
             subGroup.push(
               <div
-                key={picId}
+                key={nextPic.id}
                 style={{
                   display: 'flex',
                   flexDirection:
@@ -789,7 +776,6 @@ export default function LayoutArea({
                 ) &&
                 !pairIdsMap.has(subArrayOfDroppedPictures[prevPrevIndex].id)
               ) {
-                console.log(prevPrevIndex)
                 processedPictures[prevPrevIndex] = true
                 const prevPrevPic = subArrayOfDroppedPictures[prevPrevIndex]
                 lastPic = prevPrevPic
@@ -856,9 +842,6 @@ export default function LayoutArea({
                 if (getLastWordOfId(prevPrevPic.id) === 'horizontal') {
                   totalWidth += prevPrevPic.widthPercentTaken
                 }
-
-                console.log('combined with ' + prevPrevPic.id)
-                console.log(totalWidth)
                 prevPrevIndex--
               } else {
                 break
@@ -873,11 +856,8 @@ export default function LayoutArea({
         }
       }
 
-      console.log(group)
-      console.log(processedPictures)
       for (let i = 0; i < processedPictures.length; i++) {
         if (!processedPictures[i]) {
-          console.log(i)
           const picture = subArrayOfDroppedPictures[i]
           const picWidth = 100
           const heightCut = Math.pow(2, picture.verticalSplitCount)
@@ -893,7 +873,6 @@ export default function LayoutArea({
               handleSplitCell={handleSplitCell}
             />
           )
-          console.log(i - 1)
           group.splice(
             locateGroup(group, picture.id),
             0,
@@ -909,22 +888,84 @@ export default function LayoutArea({
         }
       }
 
+      // console.log(group)
+      // for(let i = 0; i < group.length; ){
+      //   let heightOfGroup = group[i].props[`data-height`]
+      //   while(heightOfGroup < 100){
+      //     const currentGroup = group[i]
+      //     console.log(i+1 < group.length)
+      //     if(i+1 < group.length && group[i+1].props['data-width'] === currentGroup.props['data-width'] && group[i+1].props['data-height'] < (100-heightOfGroup)){
+      //       console.log("here?")
+      //       const div = (
+      //           <div
+      //           key={`${currentGroup.key}`}
+      //           style={{
+      //             display: 'flex',
+      //             flexDirection: 'column',
+      //             width: `100%`,
+      //           }}
+      //           data-width={currentGroup.props['data-width']}
+      //           data-height={currentGroup.props['data-height'] + group[i+1].props['data-height'] }
+      //         >
+      //           {currentGroup}
+      //           {group[i+1]}
+      //         </div>
+      //       )
+      //       group.splice(i, 2)
+      //       group.splice(i, 0, div)
+      //       heightOfGroup += group[i+1].props['data-height']
+      //       i++
+      //     }else{
+      //       break
+      //     }
+
+      //   }
+      //   i++
+      // }
+
       let currentRowWidth = 0
       let finalGroup = []
+      let maxRowHeight = 0
       console.log(group)
 
-      for (let i = 0; i < group.length; i++) {
+      for (let i = 0; i < group.length; ) {
         if (currentRowWidth < 100) {
           finalGroup.push(group[i])
-          console.log(group[i])
-          console.log(group[i].props['data-height'])
           currentRowWidth += group[i].props['data-width']
-          console.log(finalGroup)
+          // maxRowHeight = Math.max(maxRowHeight, group[i].props['data-height'])
+          console.log(group[i])
         } else {
           let finalDiv = []
+          //   for (let j = 0; j < finalGroup.length; j++) {
+          //     const currentDiv = finalGroup[j]
+          //     console.log(currentDiv)
+
+          //     if(currentDiv.props['data-height'] < maxHeightOfRow){
+          //       if(!(j+1 < finalGroup.length)){
+          //         const combineVertically = (
+          //               <div
+          //           key={`finalDiv-${i+j}`}
+          //           style={{
+          //             display: 'flex',
+          //             flexDirection: 'column',
+          //             width: `${group[i].props['data-width']}%`,
+          //           }}
+          //           data-width={group[i].props['data-width']}
+          //         >
+          //           {currentDiv}
+          //           {group[i]}
+          //         </div>)
+          //       }else{
+          //         console.log("simply combine with the next on in finalGroup")
+          //       }
+          //     }else{
+
+          //     }
+          //  }
+
           for (let i = 0; i < finalGroup.length; i++) {
             const currentDiv = finalGroup[i]
-            console.log(currentDiv)
+
             finalDiv.push(
               <div
                 key={currentDiv.key}
@@ -938,6 +979,7 @@ export default function LayoutArea({
               </div>
             )
           }
+
           resultComponents.push(
             <div
               key={`finalDiv-${resultComponents.length}`}
@@ -957,6 +999,8 @@ export default function LayoutArea({
           currentRowWidth = 0
           currentRowWidth += group[i].props['data-width']
         }
+
+        i++
       }
 
       let finalDiv = []
